@@ -6,26 +6,35 @@ function conexion(){
     }
     return $conexion;
 }
-function check_password($user,$pass){
+function login($user,$pass){
+
     $con = conexion();
-    $contra = hash('sha256', $pass);
-    $sql = "SELECT * FROM usuarios WHERE usuario='$user' AND contra='$contra';";
-    $resultado = $con->query($sql);
-        if($resultado->num_rows == 1){
-            return true;
-        }else{
-            return false;
-        }  
-}
-function check_user($user){
-    $con = conexion();
-    $sql = "SELECT * FROM usuarios WHERE usuario='$user';";
+
+    $sql = "SELECT * FROM usuarios WHERE usuario='$user'";
+
     $resultado = $con->query($sql);
 
-        if($resultado->num_rows>0){
-            return true;
-        }else{
-            return false;
-        }
+    if($resultado->num_rows != 1){
+        return "Usuario no encontrado";
+    }
+
+    $datos = $resultado->fetch_assoc();
+
+    $contra = hash('sha256', $pass);
+
+    if($datos['contra'] !== $contra){
+        return "Contraseña incorrecta";
+    }
+    
+    if(session_status() == PHP_SESSION_NONE){
+        session_start();
+    }
+
+    $_SESSION['usuario'] = new Usuario(
+        $datos['nombre'],
+        $datos['rol']
+    );
+
+    return true;
 }
 ?>

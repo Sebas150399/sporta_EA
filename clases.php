@@ -58,26 +58,45 @@ class Usuario extends Persona{
         $this->localidad = $localidad;
     
     }
-
+    #region GETTERS
+    public function getRol(){
+        return $this->rol;
+    }
+    public function getUsuario(){
+        return $this->usuario;
+    }
+    public function getDireccion(){
+        return $this->localidad;
+    }
+    public function getDireccion(){
+        return $this->direccion;
+    }
+    #endregion
+    
     public static function iniciarSesion($usuario,$pass){
-        if(!check_user($usuario)){
-            return "<script>alert('Usuario no encontrado')</script>";
-        }
-        if(!check_password($usuario,$pass)){
-            return "<script>alert('Contraseña incorrecta')</script>";
-        }
-        $roles = [
-            'admin' => 'admin.php',
-            'empleado' => 'empleado.php'
-        ];
 
-        $rol = $_SESSION['usuario']->getRol();
+        if(isset($_SESSION['usuario'])){
+            session_unset();
+            session_destroy();
+        }
 
-        if (isset($roles[$rol])) {
-            header("Location: {$roles[$rol]}");
-            exit;
+        $mensaje = login($usuario,$pass);
+
+        if($mensaje === true){
+
+            $rol = $_SESSION['usuario']->getRol();
+
+            $roles = [
+                'admin' => 'admin.php',
+                'empleado' => 'empleado.php'
+            ];
+
+            if(isset($roles[$rol])){
+                header("Location: {$roles[$rol]}");
+                exit;
+            }    
         }else{
-            return "<script>alert('Error en roles')</script>";
+            echo "<script>alert('$mensaje')</script>";
         }
     }
 
